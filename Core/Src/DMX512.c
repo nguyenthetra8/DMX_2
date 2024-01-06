@@ -14,7 +14,7 @@ extern UART_HandleTypeDef huart2;
 /* Clear DMX Buffer */
 void clrDmxData(uint8_t *dmxData) {
 	int i;
-	for (i = 1; i < 513; i++) {
+	for (i = 0; i < 513; i++) {
 		dmxData[i] = 0;
 	}
 }
@@ -65,22 +65,19 @@ void DMX_Delay1ms() {
 	GPIO_Tx_Config_AF();		//Set UART TX pin mode to AF
 }
 
-void DMX_Send_Packet(uint8_t* Data) {
+void DMX_Send_Packet() {
 	uint16_t i = 0;
-	for (i = 0; i < 513; i++) {
-		dmxData[i] = Data[i];
-	}
 	DMX_UART_INIT_SEND_DATA;
 	DMX_Break();        //Break and Start Code
-	for (i = 0; i < 513; i++) {
+	for (i = 0; i < 512; i++) {
 		HAL_UART_Transmit(&huart2, (uint8_t*) dmxData + i, 1, 100);
 	}
 }
 
-void DMX_send_ms(int ms,uint8_t* Data){
-	DMX_Send_Packet(Data);
-	delay_ms(ms);
-	clrDmxData(Data);
+void DMX_send_ms(int ms){
+	DMX_Send_Packet();
+	delay_ms(ms-3);
+	clrDmxData(dmxData);
 }
 
 void DMX_Send_Add(unsigned char add) {
@@ -126,10 +123,10 @@ void DMX_ful() {
 	for (i = 0; i < 513; i++) {
 		dmxData[i] = 0xff;
 	}
-	DMX_Send_Packet(dmxData);
+	DMX_Send_Packet();
 } 
 void DMX_Notice(uint16_t add) {
 	clrDmxData(dmxData);
 	dmxData[add] = 255;
-	DMX_Send_Packet(dmxData);
+	DMX_Send_Packet();
 }

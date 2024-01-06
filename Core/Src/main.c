@@ -66,7 +66,7 @@ uint32_t Counter = 0;
 
 int		ma7doan[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xff,0xcf,0x9e,0x5b,0xc0};
 unsigned int t,led1,led2;
-extern uint8_t USB_BUFF[];
+extern uint8_t USB_ARR[];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -87,7 +87,7 @@ void ScanLed(uint8_t num,uint8_t chanel);
 /* USER CODE BEGIN 0 */
 void send_uart(char* c){
 	uint8_t len = strlen(c);	
-	HAL_UART_Transmit(&huart2,(uint8_t*)c,4096,100);
+	HAL_UART_Transmit(&huart2,(uint8_t*)c,len,100);
 
 }
 int bufsize(char* buf){
@@ -98,6 +98,12 @@ int bufsize(char* buf){
 void bufclear(void){
 	for(int i=0;i<1024;i++){
 		buffer[i] = '\0';
+	}
+}
+void dmx_str_copy(char* src, int d){
+	clrDmxData(dmxData);
+	for(int i = 0;i<d;i++){
+		dmxData[i] = (uint8_t)src[i];
 	}
 }
 void shift_led(uint8_t data){
@@ -114,6 +120,56 @@ void shift_led(uint8_t data){
 	}
 	HAL_GPIO_WritePin(GPIOB,LAD_LED_Pin,1);
 }
+//void SD_Mode(TCHAR* file_name){
+//		char line[1024]; // M?ng kí t? d? luu t?ng dòng
+//    char data[512] = { 0 };
+//    int add[512] = {0};
+//    char* token;
+//    int hold;
+//  f_mount(&fs, "", 0);
+//	fresult = f_open(&fil, file_name, FA_READ);
+//	if (fresult == FR_OK)send_uart ("file is open and the data is shown below\n");
+//	/* Read data from the file
+//	 * Please see the function details for the arguments 
+//	*/
+//	while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
+//        // X? lý dòng d?c du?c ? dây
+//        // Ví d?: in ra màn hình
+//        int nr_of_slot = 0;
+//        hold = 0;
+//        for (int i = 0; i < 512;i++) {
+//            data[i] = 0;
+//            add[i] = 0;
+//            dmxData[i] = 0;
+//        }
+//        int i1 = 0;
+//        token = strtok(line, ",");// G?i hàm strtok() l?n d?u tiên v?i chu?i và kí t? phân cách là d?u ph?y
+//        while ((token != NULL))  // L?p l?i cho d?n khi không còn ph?n nào n?a
+//        {
+//           
+//            if (i1 == 0) {						//so dau tien lay so luong dia chi
+//                nr_of_slot = atoi(token);
+//            }
+//            else if(i1 == (nr_of_slot*2+1))								// so cuoi dong la holdtime
+//                hold = atoi(token);
+//            else if ((i1 / 2) < nr_of_slot+1) {
+//                if ((i1 % 2) == 0)		//so o vi chi chan luu vao data
+//                    data[(i1-1) / 2] = atoi(token);
+//                else if ((i1 % 2) == 1)					// so o vi tri le luu vao add
+//                    add[i1 / 2] = atoi(token);
+//            }
+//            i1++;
+//            token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+//        }
+//        for (int t = 0; t < nr_of_slot; t++) {
+
+//            dmxData[add[t]-1] = data[t];
+//        }
+//        DMX_send_ms(hold);
+//        
+//    }
+//    f_close(&fil);
+//}
 /* USER CODE END 0 */
 
 /**
@@ -121,7 +177,6 @@ void shift_led(uint8_t data){
   * @retval int
   */
 int main(void)
-
 {
   /* USER CODE BEGIN 1 */
 
@@ -133,13 +188,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-		char line[300]; // M?ng kí t? d? luu t?ng dòng
-    char data[512]={0};
-		char add[512]= {0};
-    char* token;
-		char* sub_token;
-    uint16_t hold;
-		int nr_of_slot;
+		
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -158,54 +207,70 @@ int main(void)
   MX_TIM4_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-	fresult = f_mount(&fs, "/", 1);
-	if (fresult != FR_OK) send_uart ("ERROR!!! in mounting SD CARD...\n\n");
-	else send_uart("SD CARD mounted successfully...\n\n");
-		fresult = f_open(&fil, "show2.txt", FA_READ);
-	if (fresult == FR_OK)send_uart ("show1.txt is open and the data is shown below\n");
-	
-	/* Read data from the file
-	 * Please see the function details for the arguments 
-	*/
-	while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
-      
-			int i1 =0; 
-			token = strtok(line, ",");// G?i hàm strtok() l?n d?u tiên v?i chu?i và kí t? phân cách là d?u ph?y
-			while((token != NULL))  // L?p l?i cho d?n khi không còn ph?n nào n?a
-			{		
-				if(i1 == 0)						//so dau tien lay so luong dia chi
-					nr_of_slot = atoi(token);
-				if((i1/2)<nr_of_slot ){
-					if((i1 % 2) == 0)		//so o vi chi chan luu vao data
-						data[i1 / 2] = atoi(token);
-					else							// so o vi tri le luu vao add
-						add[i1 / 2] = atoi(token);
-				}
-				else								// so cuoi dong la holdtime
-					hold = atoi(token);
-				i1++;
-				
-			}
-			for(int t =0;t<nr_of_slot;t++){
-				
-				dmxData[add[t]]= data[t];
-			}
-			DMX_send_ms(hold,(uint8_t*)data);
-			nr_of_slot = 0;
-			i1 =0;
-			token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
-	}
-//	/* Close file */
-	f_close(&fil);
+	HAL_TIM_Base_Start(&htim4);
+		
   /* USER CODE END 2 */
-	
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	
   while (1)
   {
-    /* USER CODE END WHILE */
+		char line[1024]; // M?ng kí t? d? luu t?ng dòng
+    char data[512] = { 0 };
+    int add[512] = {0};
+    char* token;
+    int hold;
+		f_mount(&fs, "", 0);
+		fresult = f_open(&fil, "show2.txt", FA_READ);
+		if (fresult == FR_OK)
+		/* Read data from the file
+		 * Please see the function details for the arguments 
+		*/
+		while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
+        // X? lý dòng d?c du?c ? dây
+        // Ví d?: in ra màn hình
+        int nr_of_slot = 0;
+        hold = 0;
+        for (int i = 0; i < 512;i++) {
+            data[i] = 0;
+            add[i] = 0;
+            dmxData[i] = 0;
+        }
+        int i1 = 0;
+        token = strtok(line, ",");// G?i hàm strtok() l?n d?u tiên v?i chu?i và kí t? phân cách là d?u ph?y
+        while ((token != NULL))  // L?p l?i cho d?n khi không còn ph?n nào n?a
+        {
+           
+            if (i1 == 0) {						//so dau tien lay so luong dia chi
+                nr_of_slot = atoi(token);
+            }
+            else if(i1 == (nr_of_slot*2+1))								// so cuoi dong la holdtime
+                hold = atoi(token);
+            else if ((i1 / 2) < nr_of_slot+1) {
+                if ((i1 % 2) == 0)		//so o vi chi chan luu vao data
+                    data[(i1-1) / 2] = atoi(token);
+                else if ((i1 % 2) == 1)					// so o vi tri le luu vao add
+                    add[i1 / 2] = atoi(token);
+            }
+            i1++;
+            token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+        }
+        for (int t = 0; t < nr_of_slot; t++) {
+
+            dmxData[add[t]-1] = data[t];
+        }
+        DMX_send_ms(hold);
+        
+    }
+    f_close(&fil);
 		
+//		for(int i = 0; i<512;i++){
+//			dmxData[i] = USB_ARR[i];
+//		}
+//		DMX_Send_Packet();
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
 
   }
@@ -402,7 +467,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 250000;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
