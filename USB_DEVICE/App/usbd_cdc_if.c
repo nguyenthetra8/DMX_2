@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "string.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,7 +94,11 @@ uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
 uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
+uint8_t buffer[1088] = {0};
 uint8_t USB_ARR[512] = {0};
+int t1 = 0;
+uint8_t* ptr;
+
 /* USER CODE END PRIVATE_VARIABLES */
 
 /**
@@ -259,52 +263,30 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+	if(t1<34){
+		for(int i = 0;i<APP_RX_DATA_SIZE;i++){
+			buffer[t1*32+i] = UserRxBufferFS[i];
+		}
+	t1++;
+	}
+	else{
+//		HAL_UART_Transmit(&huart2,buffer,1088,100);
+		ptr = (uint8_t*)memchr(buffer+20,0x01,512);
+		if(ptr!= NULL){
+			memcpy(USB_ARR,ptr+5,512);
+		}
+		else
+			HAL_UART_Transmit(&huart2,"null",5,100);
+		t1 = 0;
+		for(int i = 0;i<1088;i++){
+			buffer[i] =0;
+		}
+	}	
+	for(int i = 0;i<APP_RX_DATA_SIZE;i++){
+		UserRxBufferFS[i] = 0;
+	}
+	USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-    char* data;
-    char* cur_pos;
-    char* next_pos;
-    data = strtok((char*)UserRxBufferFS, "~o...6.6..");
-    while (data != NULL)
-    {
-        cur_pos = data;
-        data = strtok(NULL, "~o...6.6..");
-        next_pos = data;
-        int size = (int)(next_pos - cur_pos) - 10;
-        if ((size) == 2) {
-            for (int i = 0; i < 510; i = i + 3) {
-                USB_ARR[i] = cur_pos[0];
-                USB_ARR[i + 1] = 0;
-                USB_ARR[i + 2] = 0;
-            }
-        }
-				else if ((size) == 3) {
-            for (int i = 0; i < 510; i = i + 3) {
-                USB_ARR[i] = 0;
-                USB_ARR[i + 1] = cur_pos[1];
-                USB_ARR[i + 2] = 0;
-            }
-        }
-        else if ((size) == 4) {
-            for (int i = 0; i < 510; i = i + 3) {
-                USB_ARR[i] = cur_pos[0];
-                USB_ARR[i + 1] = cur_pos[1];
-                USB_ARR[i + 2] = 0;
-            }
-        }
-        else if ((size - 10) == 6) {
-            for (int i = 0; i < 510; i = i + 3) {
-                USB_ARR[i] = cur_pos[0];
-                USB_ARR[i + 1] = cur_pos[1];
-                USB_ARR[i + 2] = cur_pos[2];
-            }
-        }
-        else {
-            for (int i = 0; i < 512; i++) {
-                USB_ARR[i] = cur_pos[0];
-            }
-        }
-    }
   return (USBD_OK);
   /* USER CODE END 6 */
 }

@@ -23,12 +23,12 @@ extern void GPIO_Tx_Config_AF(void);
 extern void DMX_Delay_us(uint32_t nus);
 extern void DMX_Break();
 extern void DMX_Delay1ms();
-extern void DMX_Send_Packet();
+extern void DMX_Send_Packet(uint8_t* data);
 extern void DMX_Init();
 extern void DMX_Send_Add(unsigned char add);
 extern void DMX_Notice(uint16_t add);
 extern void DMX_ful();
-extern void DMX_send_ms(int ms);
+extern void DMX_send_ms(uint8_t* data,int ms);
 
 #endif
 

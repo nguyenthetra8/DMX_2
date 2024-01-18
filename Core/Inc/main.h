@@ -75,6 +75,9 @@ void Error_Handler(void);
 #define D3_GPIO_Port GPIOB
 #define D4_Pin GPIO_PIN_15
 #define D4_GPIO_Port GPIOB
+#define BT_CONNECT_Pin GPIO_PIN_15
+#define BT_CONNECT_GPIO_Port GPIOA
+#define BT_CONNECT_EXTI_IRQn EXTI15_10_IRQn
 #define DATA_LED_Pin GPIO_PIN_3
 #define DATA_LED_GPIO_Port GPIOB
 

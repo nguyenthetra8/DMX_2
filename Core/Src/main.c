@@ -35,13 +35,13 @@
 /* USER CODE BEGIN PTD */
 typedef enum e_leddigit { P = 10,C = 11,S = 12,D = 13}led7_e;
 extern uint8_t dmxData[513];
-#define MAX_VALUES 512
-
+uint8_t dmxdata[512] = { 0 };
+static uint8_t connect = 0;
+const TCHAR file_name[5][10] = {"Show1.txt","Show2.txt","Show3.txt","Show4.txt","Show5.txt"};
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-char buffer[1024];
 FATFS fs;
 FIL fil;
 FRESULT fresult;
@@ -63,10 +63,9 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint32_t Counter = 0;
-
+extern uint8_t USB_ARR[];
 int		ma7doan[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xff,0xcf,0x9e,0x5b,0xc0};
 unsigned int t,led1,led2;
-extern uint8_t USB_ARR[];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,87 +87,57 @@ void ScanLed(uint8_t num,uint8_t chanel);
 void send_uart(char* c){
 	uint8_t len = strlen(c);	
 	HAL_UART_Transmit(&huart2,(uint8_t*)c,len,100);
+}
 
-}
-int bufsize(char* buf){
-	int i = 0;
-	while (*buf++ != '\0') i++;
-	return i;
-}
-void bufclear(void){
-	for(int i=0;i<1024;i++){
-		buffer[i] = '\0';
-	}
-}
-void dmx_str_copy(char* src, int d){
-	clrDmxData(dmxData);
-	for(int i = 0;i<d;i++){
-		dmxData[i] = (uint8_t)src[i];
-	}
-}
-void shift_led(uint8_t data){
-	uint8_t temp;
-	HAL_GPIO_WritePin(GPIOB,LAD_LED_Pin,0);
-	for(int i =0;i<8;i++){
-		temp = data&(0x80>>i);
-		if(temp == 0)
-			HAL_GPIO_WritePin(GPIOB,DATA_LED_Pin,0);
-		else
-			HAL_GPIO_WritePin(GPIOB,DATA_LED_Pin,1);
-		HAL_GPIO_WritePin(GPIOB,CLK_LED_Pin,1);
-		HAL_GPIO_WritePin(GPIOB,CLK_LED_Pin,0);
-	}
-	HAL_GPIO_WritePin(GPIOB,LAD_LED_Pin,1);
-}
+//void shift_led(uint8_t data){
+//	uint8_t temp;
+//	HAL_GPIO_WritePin(GPIOB,LAD_LED_Pin,0);
+//	for(int i =0;i<8;i++){
+//		temp = data&(0x80>>i);
+//		if(temp == 0)
+//			HAL_GPIO_WritePin(GPIOB,DATA_LED_Pin,0);
+//		else
+//			HAL_GPIO_WritePin(GPIOB,DATA_LED_Pin,1);
+//		HAL_GPIO_WritePin(GPIOB,CLK_LED_Pin,1);
+//		HAL_GPIO_WritePin(GPIOB,CLK_LED_Pin,0);
+//	}
+//	HAL_GPIO_WritePin(GPIOB,LAD_LED_Pin,1);
+//}
+
 //void SD_Mode(TCHAR* file_name){
-//		char line[1024]; // M?ng kí t? d? luu t?ng dòng
-//    char data[512] = { 0 };
-//    int add[512] = {0};
+//		char line[1200]; // M?ng kí t? d? luu t?ng dòng
 //    char* token;
-//    int hold;
-//  f_mount(&fs, "", 0);
-//	fresult = f_open(&fil, file_name, FA_READ);
-//	if (fresult == FR_OK)send_uart ("file is open and the data is shown below\n");
+//		uint16_t i1 = 0;
+//		
+//		f_mount(&fs, "", 0);
+//		fresult = f_open(&fil, file_name, FA_READ);
+//		if (fresult == FR_OK)send_uart("connected\n");
 //	/* Read data from the file
 //	 * Please see the function details for the arguments 
 //	*/
-//	while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
-//        // X? lý dòng d?c du?c ? dây
-//        // Ví d?: in ra màn hình
-//        int nr_of_slot = 0;
-//        hold = 0;
+//		while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
 //        for (int i = 0; i < 512;i++) {
-//            data[i] = 0;
-//            add[i] = 0;
-//            dmxData[i] = 0;
+//            dmxdata[i] = 0;
 //        }
-//        int i1 = 0;
+//				hold_time = 0;
 //        token = strtok(line, ",");// G?i hàm strtok() l?n d?u tiên v?i chu?i và kí t? phân cách là d?u ph?y
 //        while ((token != NULL))  // L?p l?i cho d?n khi không còn ph?n nào n?a
 //        {
-//           
-//            if (i1 == 0) {						//so dau tien lay so luong dia chi
-//                nr_of_slot = atoi(token);
-//            }
-//            else if(i1 == (nr_of_slot*2+1))								// so cuoi dong la holdtime
-//                hold = atoi(token);
-//            else if ((i1 / 2) < nr_of_slot+1) {
-//                if ((i1 % 2) == 0)		//so o vi chi chan luu vao data
-//                    data[(i1-1) / 2] = atoi(token);
-//                else if ((i1 % 2) == 1)					// so o vi tri le luu vao add
-//                    add[i1 / 2] = atoi(token);
-//            }
-//            i1++;
-//            token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+//						if(i1<512)
+//								dmxdata[i1] = atoi(token);
+//						else if(i1 == 512 )
+//								hold_time = atoi(token);
+//						else 
+//							break;
+//						i1++;
+//						token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+//						 // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
 //        }
-//        for (int t = 0; t < nr_of_slot; t++) {
-
-//            dmxData[add[t]-1] = data[t];
-//        }
-//        DMX_send_ms(hold);
-//        
+//				i1 = 0;
+//				DMX_Send_Packet(dmxdata);
+//				delay_ms(hold_time);
 //    }
-//    f_close(&fil);
+//		f_close(&fil);
 //}
 /* USER CODE END 0 */
 
@@ -195,7 +164,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-	HAL_TIM_Base_Start_IT(&htim2);
+//	HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -213,66 +182,92 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	
+		
   while (1)
   {
-		char line[1024]; // M?ng kí t? d? luu t?ng dòng
-    char data[512] = { 0 };
-    int add[512] = {0};
-    char* token;
-    int hold;
-		f_mount(&fs, "", 0);
-		fresult = f_open(&fil, "show2.txt", FA_READ);
-		if (fresult == FR_OK)
-		/* Read data from the file
-		 * Please see the function details for the arguments 
-		*/
-		while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
-        // X? lý dòng d?c du?c ? dây
-        // Ví d?: in ra màn hình
-        int nr_of_slot = 0;
-        hold = 0;
-        for (int i = 0; i < 512;i++) {
-            data[i] = 0;
-            add[i] = 0;
-            dmxData[i] = 0;
-        }
-        int i1 = 0;
-        token = strtok(line, ",");// G?i hàm strtok() l?n d?u tiên v?i chu?i và kí t? phân cách là d?u ph?y
-        while ((token != NULL))  // L?p l?i cho d?n khi không còn ph?n nào n?a
-        {
-           
-            if (i1 == 0) {						//so dau tien lay so luong dia chi
-                nr_of_slot = atoi(token);
-            }
-            else if(i1 == (nr_of_slot*2+1))								// so cuoi dong la holdtime
-                hold = atoi(token);
-            else if ((i1 / 2) < nr_of_slot+1) {
-                if ((i1 % 2) == 0)		//so o vi chi chan luu vao data
-                    data[(i1-1) / 2] = atoi(token);
-                else if ((i1 % 2) == 1)					// so o vi tri le luu vao add
-                    add[i1 / 2] = atoi(token);
-            }
-            i1++;
-            token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
-        }
-        for (int t = 0; t < nr_of_slot; t++) {
+		if(connect == 1){
+			for(int i = 0; i<512;i++){
+				dmxData[i] = USB_ARR[i];
+			}
+			DMX_Send_Packet(dmxData);
+		}
+		else{
+			char line[1200]; // M?ng kí t? d? luu t?ng dòng
+			char data[512] = {0};
+			char* token;
+			uint16_t i1 = 0;
+			uint16_t hold_time;
+			f_mount(&fs, "", 0);
+			fresult = f_open(&fil,"Show4.txt", FA_READ);
+			if (fresult == FR_OK)send_uart("connected\n");
+			while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
+					for (int i = 0; i < 512;i++) {
+							dmxData[i] = 0;
+					}
+					hold_time = 0;
+					token = strtok(line, ",");// G?i hàm strtok() l?n d?u tiên v?i chu?i và kí t? phân cách là d?u ph?y
+					while ((token != NULL))  // L?p l?i cho d?n khi không còn ph?n nào n?a
+					{
+							if(i1<512)
+									dmxData[i1] = atoi(token);
+							else if(i1 == 512 )
+									hold_time = atoi(token);
+							else 
+								break;
+							i1++;
+							token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+							 // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+					}
+					i1 = 0;
+					DMX_Send_Packet(dmxData);
+					delay_ms(hold_time);
+			}
+			f_close(&fil);
+		}
+//			char line[1200]; // M?ng kí t? d? luu t?ng dòng
+//    char data[512] = {0};
+//    char* token;
+//		uint16_t i1 = 0;
+//		uint16_t hold_time;
+//		f_mount(&fs, "", 0);
+//		fresult = f_open(&fil, file_name, FA_READ);
+//		if (fresult == FR_OK)send_uart("connected\n");
 
-            dmxData[add[t]-1] = data[t];
-        }
-        DMX_send_ms(hold);
-        
-    }
-    f_close(&fil);
+//	/* Read data from the file
+//	 * Please see the function details for the arguments 
+//	*/
+//		while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
+//        for (int i = 0; i < 512;i++) {
+//            dmxdata[i] = 0;
+//        }
+//				hold_time = 0;
+//        token = strtok(line, ",");// G?i hàm strtok() l?n d?u tiên v?i chu?i và kí t? phân cách là d?u ph?y
+//        while ((token != NULL))  // L?p l?i cho d?n khi không còn ph?n nào n?a
+//        {
+//						if(i1<512)
+//								dmxdata[i1] = atoi(token);
+//						else if(i1 == 512 )
+//								hold_time = atoi(token);
+//						else 
+//							break;
+//						i1++;
+//						token = strtok(NULL, ","); // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+//						 // G?i hàm strtok() ti?p theo v?i tham s? d?u tiên là NULL
+//        }
+//				i1 = 0;
+//				DMX_Send_Packet(dmxdata);
+//				delay_ms(hold_time);
+//    }
+//		f_close(&fil);
+//			for(int i = 0; i<512;i++){
+//				dmxData[i] = USB_ARR[i];
+//			}
+//			DMX_Send_Packet(dmxData);
 		
-//		for(int i = 0; i<512;i++){
-//			dmxData[i] = USB_ARR[i];
-//		}
-//		DMX_Send_Packet();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
+		
   }
   /* USER CODE END 3 */
 }
@@ -523,6 +518,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : BT_CONNECT_Pin */
+  GPIO_InitStruct.Pin = BT_CONNECT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(BT_CONNECT_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -534,8 +539,19 @@ void delay_us(uint32_t us){
     while (__HAL_TIM_GET_COUNTER(&htim4) < us);
 }
 void delay_ms(uint32_t ms){
-	 __HAL_TIM_SET_COUNTER(&htim4,0);  // set the counter value a 0
-    while (__HAL_TIM_GET_COUNTER(&htim4) < 1000*ms);
+ int i = 0;
+ for(i = 0; i < ms; i++)
+ {
+   delay_us(1000);
+ }
+}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+		 if(GPIO_Pin == BT_CONNECT_Pin){
+				connect++;
+				if(connect ==2)
+					connect = 0;
+		 }
+			
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
