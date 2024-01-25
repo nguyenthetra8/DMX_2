@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\DMX_2\DMX_2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\DMX_2\DMX_2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Thu Jan 18 17:12:38 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Fri Jan 19 01:01:55 2024
 <BR><P>
 <H3>Maximum Stack Usage =       5736 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -50,8 +50,8 @@ Function Pointers
  <LI><a href="#[2b]">EXTI1_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[2c]">EXTI2_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[2d]">EXTI3_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
- <LI><a href="#[2e]">EXTI4_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
- <LI><a href="#[3b]">EXTI9_5_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
+ <LI><a href="#[2e]">EXTI4_IRQHandler</a> from stm32f1xx_it.o(.text.EXTI4_IRQHandler) referenced from startup_stm32f103xb.o(RESET)
+ <LI><a href="#[3b]">EXTI9_5_IRQHandler</a> from stm32f1xx_it.o(.text.EXTI9_5_IRQHandler) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[28]">FLASH_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[1c]">HardFault_Handler</a> from stm32f1xx_it.o(.text.HardFault_Handler) referenced from startup_stm32f103xb.o(RESET)
  <LI><a href="#[44]">I2C1_ER_IRQHandler</a> from startup_stm32f103xb.o(.text) referenced from startup_stm32f103xb.o(RESET)
@@ -308,12 +308,6 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
 <P><STRONG><a name="[2d]"></a>EXTI3_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32f103xb.o(.text))
-<BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
-</UL>
-<P><STRONG><a name="[2e]"></a>EXTI4_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32f103xb.o(.text))
-<BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
-</UL>
-<P><STRONG><a name="[3b]"></a>EXTI9_5_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32f103xb.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
 <P><STRONG><a name="[28]"></a>FLASH_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32f103xb.o(.text))
@@ -598,6 +592,18 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
+<P><STRONG><a name="[2e]"></a>EXTI4_IRQHandler</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32f1xx_it.o(.text.EXTI4_IRQHandler))
+<BR><BR>[Calls]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_EXTI_IRQHandler
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
+</UL>
+<P><STRONG><a name="[3b]"></a>EXTI9_5_IRQHandler</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, stm32f1xx_it.o(.text.EXTI9_5_IRQHandler))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = EXTI9_5_IRQHandler
+</UL>
+<BR>[Calls]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_EXTI_IRQHandler
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
+</UL>
 <P><STRONG><a name="[a9]"></a>Error_Handler</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, main.o(.text.Error_Handler))
 <BR><BR>[Called By]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USB_DEVICE_Init
 <LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_Init
@@ -610,7 +616,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_FATFS_Init
 </UL>
 
-<P><STRONG><a name="[80]"></a>HAL_GPIO_EXTI_Callback</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, main.o(.text.HAL_GPIO_EXTI_Callback))
+<P><STRONG><a name="[80]"></a>HAL_GPIO_EXTI_Callback</STRONG> (Thumb, 146 bytes, Stack size 0 bytes, main.o(.text.HAL_GPIO_EXTI_Callback))
 <BR><BR>[Called By]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_EXTI_IRQHandler
 </UL>
 
@@ -618,6 +624,8 @@ Global Symbols
 <BR><BR>[Calls]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_EXTI_Callback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
+<LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI9_5_IRQHandler
+<LI><a href="#[2e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI4_IRQHandler
 </UL>
 
 <P><STRONG><a name="[7c]"></a>HAL_GPIO_Init</STRONG> (Thumb, 538 bytes, Stack size 44 bytes, stm32f1xx_hal_gpio.o(.text.HAL_GPIO_Init))
@@ -1818,14 +1826,14 @@ Global Symbols
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_sync
 </UL>
 
-<P><STRONG><a name="[5d]"></a>main</STRONG> (Thumb, 1308 bytes, Stack size 1248 bytes, main.o(.text.main))
+<P><STRONG><a name="[5d]"></a>main</STRONG> (Thumb, 1404 bytes, Stack size 1248 bytes, main.o(.text.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 5736 + Unknown Stack Size
 <LI>Call Chain = main &rArr; f_open &rArr; dir_register &rArr; dir_find &rArr; dir_next &rArr; create_chain &rArr; put_fat &rArr; move_window &rArr; disk_write
 </UL>
-<BR>[Calls]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_close
-<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_gets
+<BR>[Calls]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_gets
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_open
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_mount
+<LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_close
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start
 <LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Init
 <LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_FATFS_Init

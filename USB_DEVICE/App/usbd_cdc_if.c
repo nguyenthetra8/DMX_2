@@ -271,9 +271,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 	}
 	else{
 //		HAL_UART_Transmit(&huart2,buffer,1088,100);
-		ptr = (uint8_t*)memchr(buffer+20,0x01,512);
+		ptr = (uint8_t*)memchr(buffer+20,0x01,600);
 		if(ptr!= NULL){
-			memcpy(USB_ARR,ptr+5,512);
+			memcpy(USB_ARR,(ptr+5),512);
 		}
 		else
 			HAL_UART_Transmit(&huart2,"null",5,100);

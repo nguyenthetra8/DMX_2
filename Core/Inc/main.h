@@ -80,6 +80,24 @@ void Error_Handler(void);
 #define BT_CONNECT_EXTI_IRQn EXTI15_10_IRQn
 #define DATA_LED_Pin GPIO_PIN_3
 #define DATA_LED_GPIO_Port GPIOB
+#define BT_UP_Pin GPIO_PIN_4
+#define BT_UP_GPIO_Port GPIOB
+#define BT_UP_EXTI_IRQn EXTI4_IRQn
+#define BT_DOWN_Pin GPIO_PIN_5
+#define BT_DOWN_GPIO_Port GPIOB
+#define BT_DOWN_EXTI_IRQn EXTI9_5_IRQn
+#define BT_1_Pin GPIO_PIN_6
+#define BT_1_GPIO_Port GPIOB
+#define BT_1_EXTI_IRQn EXTI9_5_IRQn
+#define BT_2_Pin GPIO_PIN_7
+#define BT_2_GPIO_Port GPIOB
+#define BT_2_EXTI_IRQn EXTI9_5_IRQn
+#define BT_3_Pin GPIO_PIN_8
+#define BT_3_GPIO_Port GPIOB
+#define BT_3_EXTI_IRQn EXTI9_5_IRQn
+#define BT4_Pin GPIO_PIN_9
+#define BT4_GPIO_Port GPIOB
+#define BT4_EXTI_IRQn EXTI9_5_IRQn
 
 /* USER CODE BEGIN Private defines */
 #define DMX_UART_INIT_SEND_ADD huart2.Init.StopBits = UART_STOPBITS_1

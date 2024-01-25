@@ -37,6 +37,7 @@ typedef enum e_leddigit { P = 10,C = 11,S = 12,D = 13}led7_e;
 extern uint8_t dmxData[513];
 uint8_t dmxdata[512] = { 0 };
 static uint8_t connect = 0;
+static uint8_t index = 0;
 const TCHAR file_name[5][10] = {"Show1.txt","Show2.txt","Show3.txt","Show4.txt","Show5.txt"};
 /* USER CODE END PTD */
 
@@ -187,9 +188,11 @@ int main(void)
   {
 		if(connect == 1){
 			for(int i = 0; i<512;i++){
+		
 				dmxData[i] = USB_ARR[i];
 			}
 			DMX_Send_Packet(dmxData);
+			delay_us(100);
 		}
 		else{
 			char line[1200]; // M?ng kí t? d? luu t?ng dòng
@@ -198,7 +201,7 @@ int main(void)
 			uint16_t i1 = 0;
 			uint16_t hold_time;
 			f_mount(&fs, "", 0);
-			fresult = f_open(&fil,"Show4.txt", FA_READ);
+			fresult = f_open(&fil,file_name[index], FA_READ);
 			if (fresult == FR_OK)send_uart("connected\n");
 			while (f_gets(line, sizeof(line), &fil)) { // Ð?c t?ng dòng t? file cho d?n khi h?t file
 					for (int i = 0; i < 512;i++) {
@@ -524,7 +527,21 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BT_CONNECT_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : BT_UP_Pin BT_DOWN_Pin BT_1_Pin BT_2_Pin
+                           BT_3_Pin BT4_Pin */
+  GPIO_InitStruct.Pin = BT_UP_Pin|BT_DOWN_Pin|BT_1_Pin|BT_2_Pin
+                          |BT_3_Pin|BT4_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
@@ -551,7 +568,23 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 				if(connect ==2)
 					connect = 0;
 		 }
-			
+		 else if(GPIO_Pin == BT_UP_Pin){
+				index ++;
+				if(index ==5)
+					index = 0;
+		 }
+		 else if(GPIO_Pin == BT_1_Pin){
+					index = 0;
+		 }
+		 else if(GPIO_Pin == BT_2_Pin){
+					index = 1;
+		 }
+		 else if(GPIO_Pin == BT_3_Pin){
+					index = 2;
+		 }
+		 else if(GPIO_Pin == BT4_Pin){
+					index = 3;
+		 }
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
